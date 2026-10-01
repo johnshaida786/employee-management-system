@@ -11,6 +11,12 @@ const Login = () => {
     const [passwordError, setPasswordError] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    
+    const [errors, setErrors] = useState({
+        email: "",
+        password: ""
+    });
+
     const navigate = useNavigate();
 
 
@@ -25,13 +31,52 @@ const Login = () => {
 
         if (name === "email") {
             setEmail(value);
+            setErrors((prev) => ({ ...prev, email: "" }));
         }
 
         if (name === "password") {
             setPassword(value);
             setPasswordError(false);
             setMsg("");
+            setErrors((prev) => ({ ...prev, password: "" }));
         }
+    };
+
+
+    // =========================
+    // VALIDATE FORM
+    // =========================
+
+    const validateForm = () => {
+
+        const nextErrors = { email: "", password: "" };
+        let valid = true;
+
+        const trimmedEmail = email.trim();
+
+        // --- Email ---
+        if (!trimmedEmail) {
+            nextErrors.email = "Email is required";
+            valid = false;
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(trimmedEmail)) {
+                nextErrors.email = "Invalid email";
+                valid = false;
+            }
+        }
+
+        // --- Password ---
+        if (!password) {
+            nextErrors.password = "Password is required";
+            valid = false;
+        } else if (password.length < 6) {
+            nextErrors.password = "Invalid password";
+            valid = false;
+        }
+
+        setErrors(nextErrors);
+        return valid;
     };
 
 
@@ -43,13 +88,10 @@ const Login = () => {
 
         event.preventDefault();
 
-        // Empty fields
-        if (
-            email.trim() === "" ||
-            password === ""
-        ) {
-            setMsg("Please Enter Details!");
+        // Run validation before hitting the API
+        if (!validateForm()) {
             setPasswordError(false);
+            setMsg("");
             return;
         }
 
@@ -90,8 +132,6 @@ const Login = () => {
                     JSON.stringify(result.user)
                 );
 
-                alert("Login Successfully!");
-
                 navigate("/home");
             }
 
@@ -105,6 +145,10 @@ const Login = () => {
                 setMsg("");
                 setPasswordError(true);
 
+                setErrors((prev) => ({
+                    ...prev,
+                    password: "Invalid password"
+                }));
             }
 
         } catch (error) {
@@ -238,10 +282,8 @@ const Login = () => {
 
         eyeButton: {
             position: "absolute",
-            right: "9px",
-            top: "35%",
-
-            transform: "translateY(-50%)",
+            right: "12px",
+            top: "10px",
 
             width: "36px",
             height: "36px",
@@ -260,7 +302,7 @@ const Login = () => {
         },
 
         error: {
-            margin: "-5px 0 15px",
+            margin: "6px 0 0",
             color: "#dc2626",
             fontSize: "13px",
             textAlign: "left"
@@ -330,28 +372,25 @@ const Login = () => {
                 <form
                     onSubmit={handleSubmit}
                     style={styles.card}
+                    noValidate
                 >
 
                     {/* Top decorative line */}
                     <div style={styles.topLine}></div>
-
 
                     {/* Brand */}
                     <div style={styles.brand}>
                         PERSONAL PORTAL
                     </div>
 
-
                     {/* Heading */}
                     <h1 style={styles.title}>
                         Welcome Back
                     </h1>
 
-
                     <p style={styles.subtitle}>
                         Sign in to continue to your account
                     </p>
-
 
                     {/* General Message */}
                     {msg && (
@@ -359,7 +398,6 @@ const Login = () => {
                             {msg}
                         </p>
                     )}
-
 
                     {/* Email */}
                     <div style={styles.inputGroup}>
@@ -371,7 +409,15 @@ const Login = () => {
                             value={email}
                             onChange={handleInput}
 
-                            style={styles.input}
+                            style={{
+                                ...styles.input,
+                                border: errors.email
+                                    ? "1px solid #ef4444"
+                                    : "1px solid #dbe2ea",
+                                background: errors.email
+                                    ? "#fff7f7"
+                                    : "#f8fafc"
+                            }}
 
                             onFocus={(e) => {
                                 e.target.style.background = "#ffffff";
@@ -381,34 +427,45 @@ const Login = () => {
                             }}
 
                             onBlur={(e) => {
-                                e.target.style.background = "#f8fafc";
-                                e.target.style.borderColor = "#dbe2ea";
+                                e.target.style.background = errors.email
+                                    ? "#fff7f7"
+                                    : "#f8fafc";
+                                e.target.style.borderColor = errors.email
+                                    ? "#ef4444"
+                                    : "#dbe2ea";
                                 e.target.style.boxShadow = "none";
                             }}
                         />
 
-                    </div>
+                        {errors.email && (
+                            <p style={styles.error}>
+                                {errors.email}
+                            </p>
+                        )}
 
+                    </div>
 
                     {/* Password */}
                     <div style={styles.inputGroup}>
 
                         <input
-                            type={
-                                showPassword
-                                    ? "text"
-                                    : "password"
-                            }
-
+                            type={showPassword ? "text" : "password"}
                             name="password"
-
                             placeholder="Password"
-
                             value={password}
-
                             onChange={handleInput}
 
-                            style={styles.passwordInput}
+                            style={{
+                                ...styles.passwordInput,
+                                border: errors.password
+                                    ? "1px solid #ef4444"
+                                    : (passwordError
+                                        ? "1px solid #ef4444"
+                                        : "1px solid #dbe2ea"),
+                                background: errors.password || passwordError
+                                    ? "#fff7f7"
+                                    : "#f8fafc"
+                            }}
 
                             onFocus={(e) => {
                                 e.target.style.background = "#ffffff";
@@ -419,12 +476,12 @@ const Login = () => {
 
                             onBlur={(e) => {
                                 e.target.style.background =
-                                    passwordError
+                                    (errors.password || passwordError)
                                         ? "#fff7f7"
                                         : "#f8fafc";
 
                                 e.target.style.borderColor =
-                                    passwordError
+                                    (errors.password || passwordError)
                                         ? "#ef4444"
                                         : "#dbe2ea";
 
@@ -432,13 +489,10 @@ const Login = () => {
                             }}
                         />
 
-
                         {/* Password visibility */}
                         <button
                             type="button"
-                            onClick={() =>
-                                setShowPassword(!showPassword)
-                            }
+                            onClick={() => setShowPassword(!showPassword)}
                             style={styles.eyeButton}
                             aria-label={
                                 showPassword
@@ -446,39 +500,27 @@ const Login = () => {
                                     : "Show password"
                             }
                         >
-
                             {showPassword
                                 ? <FaEye size={17} />
                                 : <FaEyeSlash size={17} />
                             }
-
                         </button>
+
+                        {errors.password && (
+                            <p style={styles.error}>
+                                {errors.password}
+                            </p>
+                        )}
 
                     </div>
 
-
-                    {/* Wrong password */}
-                    {passwordError && (
-                        <p style={styles.error}>
-                            ⚠ The password you've entered is incorrect.
-                        </p>
-                    )}
-
-
-                    {/* Signup */}
+                    {/* Signup link */}
                     <p style={styles.signup}>
-
                         Don't have an account?{" "}
-
-                        <Link
-                            to="/"
-                            style={styles.signupLink}
-                        >
+                        <Link to="/" style={styles.signupLink}>
                             Signup
                         </Link>
-
                     </p>
-
 
                     {/* Login button */}
                     <button
@@ -486,24 +528,19 @@ const Login = () => {
                         style={styles.button}
 
                         onMouseEnter={(e) => {
-                            e.target.style.transform =
-                                "translateY(-2px)";
-
+                            e.target.style.transform = "translateY(-2px)";
                             e.target.style.boxShadow =
                                 "0 14px 28px rgba(16,185,129,0.25)";
                         }}
 
                         onMouseLeave={(e) => {
-                            e.target.style.transform =
-                                "translateY(0)";
-
+                            e.target.style.transform = "translateY(0)";
                             e.target.style.boxShadow =
                                 "0 10px 22px rgba(16,185,129,0.20)";
                         }}
                     >
                         Log In
                     </button>
-
 
                     {/* Footer */}
                     <p style={styles.bottomText}>

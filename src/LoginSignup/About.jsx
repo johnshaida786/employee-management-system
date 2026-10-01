@@ -113,12 +113,12 @@ const About = () => {
         <div className="card about-card">
           <div className="info-row">
             <span className="info-row-label">Developer</span>
-            <span className="info-row-value">Your Name / Team</span>
+            <span className="info-row-value">Shaik.John Shaida</span>
           </div>
           <div className="info-row">
             <span className="info-row-label">Contact</span>
             <span className="info-row-value">
-              <Mail size={14} /> support@example.com
+              <Mail size={14} /> johnshaida786shaik@gmail.com
             </span>
           </div>
         </div>

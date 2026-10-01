@@ -49,7 +49,7 @@ const Singnup = () => {
             data.email === "" ||
             data.password === ""
         ) {
-            alert("Please Enter Detail!");
+         alert("Please Enter Detail!");
             return;
         }
 
@@ -73,7 +73,7 @@ const Singnup = () => {
 
             if (response.ok) {
 
-                alert("Signup Successful!");
+                alert("Account Created Successful!");
 
                 // Go to Login page
                 navigate("/login");

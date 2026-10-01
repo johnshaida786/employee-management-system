@@ -1,29 +1,51 @@
-import React from 'react'
-import "../index.css"
-import Singnup from './Singnup.jsx'
-import Login from './Login.jsx'
-import Home from './Home.jsx'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import React from "react";
+import "../index.css";
+
+import Singnup from "./Singnup.jsx";
+import Login from "./Login.jsx";
+import Dashboard from "./Dashboard.jsx";
+import Profile from "./Profile.jsx";
+import EditProfile from "./EditProfile.jsx";
+import Settings from "./Settings.jsx";
+import About from "./About.jsx";
+import DashboardLayout from "./DashboardLayout.jsx";
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const App = () => {
-    return (
-        <BrowserRouter>
-            <Routes>
+  return (
+    <BrowserRouter>
+      <Routes>
 
-                <Route path='/' element={<Singnup />} />
+        {/* Signup */}
+        <Route path="/" element={<Singnup />} />
 
-                <Route path='/login' element={<Login />} />
+        {/* Login */}
+        <Route path="/login" element={<Login />} />
 
-                <Route path='/home' element={<Home />} />
+        {/* All dashboard pages use the same static Sidebar */}
+        <Route element={<DashboardLayout />}>
 
-                {/* Added routes only */}
-                <Route path='/profile' element={<Home />} />
-                <Route path='/settings' element={<Home />} />
-                <Route path='/about' element={<Home />} />
+          {/* Dashboard */}
+          <Route path="/home" element={<Dashboard />} />
 
-            </Routes>
-        </BrowserRouter>
-    )
-}
+          {/* Profile */}
+          <Route path="/profile" element={<Profile />} />
+
+          {/* Settings */}
+          <Route path="/settings" element={<Settings />} />
+
+          {/* About */}
+          <Route path="/about" element={<About />} />
+
+          {/* Edit Profile */}
+          <Route path="/edit-profile" element={<EditProfile />} />
+
+        </Route>
+
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 export default App;
