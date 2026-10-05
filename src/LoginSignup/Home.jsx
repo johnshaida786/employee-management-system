@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import Sidebar from './Sidebar.jsx';
 import Dashboard from './Dashboard.jsx';
 import Profile from './Profile.jsx';
 import Settings from './Settings.jsx';

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Navbar from './Navbar';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
