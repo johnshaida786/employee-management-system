@@ -9,6 +9,8 @@ import EditProfile from "./EditProfile.jsx";
 import Settings from "./Settings.jsx";
 import About from "./About.jsx";
 import DashboardLayout from "./DashboardLayout.jsx";
+import ViewProfile from "./ViewProfile.jsx";
+import MyTasks from "./MyTasks.jsx";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -32,6 +34,9 @@ const App = () => {
           {/* Profile */}
           <Route path="/profile" element={<Profile />} />
 
+           {/* My Tasks */}
+          <Route path="/tasks" element={<MyTasks />} />
+
           {/* Settings */}
           <Route path="/settings" element={<Settings />} />
 
@@ -40,7 +45,8 @@ const App = () => {
 
           {/* Edit Profile */}
           <Route path="/edit-profile" element={<EditProfile />} />
-
+          {/*View Profile */}
+          <Route path="/view-profile" element={<ViewProfile />} />
         </Route>
 
       </Routes>

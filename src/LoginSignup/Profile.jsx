@@ -731,7 +731,7 @@ const Profile = () => {
                                                 title="View Profile"
                                                 onClick={() =>
                                                     navigate(
-                                                        "/profile"
+                                                        "/view-profile"
                                                     )
                                                 }
                                             >

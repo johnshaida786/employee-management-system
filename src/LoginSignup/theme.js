@@ -1,6 +1,5 @@
-// src/theme.js
 // One place that controls the theme for the WHOLE website.
-
+//themes
 const STORAGE_KEY = 'appearance';
 const VALID = ['light', 'dark', 'system'];
 

@@ -1,0 +1,28 @@
+.my-tasks-page {
+    width: 100%;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.my-tasks-header {
+    margin-bottom: 25px;
+}
+
+.my-tasks-header h1 {
+    margin: 0;
+    font-size: 30px;
+    color: #111827;
+}
+
+.my-tasks-header p {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.my-tasks-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+}

@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   UserRound,
+  ListTodo,
   Settings,
   CircleHelp,
   LogOut,
@@ -29,6 +30,11 @@ const Sidebar = ({
       path: "/profile",
       icon: UserRound
     },
+    {
+    name: "My Tasks",
+    path: "/tasks",
+    icon: ListTodo
+  },
     {
       name: "Settings",
       path: "/settings",
