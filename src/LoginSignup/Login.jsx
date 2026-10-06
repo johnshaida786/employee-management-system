@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import Navbar from "./Navbar";
 
 const Login = () => {
 
@@ -364,7 +365,7 @@ const Login = () => {
     return (
         <div>
 
-            <Navbar />
+        
 
             <div style={styles.page}>
 

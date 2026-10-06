@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-
+import Navbar from "./Navbar";
 const Singnup = () => {
+    const navigate = useNavigate();
 
     const userDetail = {
         name: "",
@@ -21,8 +22,6 @@ const Singnup = () => {
         title: "",
         message: ""
     });
-
-    const navigate = useNavigate();
 
 
     // =========================
@@ -81,10 +80,11 @@ const Singnup = () => {
     };
 
     const closeModal = () => {
+        const wasSuccess = modal.type === "success";
         setModal({ ...modal, show: false });
 
-        // Navigate only if it was a success modal
-        if (modal.type === "success") {
+        // Redirect to login only after a successful signup
+        if (wasSuccess) {
             navigate("/login");
         }
     };
@@ -135,7 +135,59 @@ const Singnup = () => {
     return (
         <div>
 
-            <Navbar />
+            {/* =========================
+                NAVIGATION BAR
+            ========================= */}
+            <nav
+                style={{
+                    width: "100%",
+                    height: "60px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0 30px",
+                    boxSizing: "border-box",
+                    background: "#ffffff",
+                    borderBottom: "1px solid #e5e7eb",
+                    boxShadow: "0 2px 8px rgba(15,23,42,0.04)",
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 100
+                }}
+            >
+                <Link
+                    to="/"
+                    style={{
+                        fontSize: "20px",
+                        fontWeight: "700",
+                        color: "#4f46e5",
+                        textDecoration: "none",
+                        letterSpacing: "-0.4px"
+                    }}
+                >
+                    MyApp
+                </Link>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "22px" }}>
+                    <Link to="/" style={navLinkStyle}>Home</Link>
+                    <Link to="/login" style={navLinkStyle}>Login</Link>
+                    <Link
+                        to="/signup"
+                        style={{
+                            ...navLinkStyle,
+                            color: "#ffffff",
+                            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                            padding: "9px 18px",
+                            borderRadius: "10px",
+                            fontWeight: "600",
+                            boxShadow: "0 6px 14px rgba(99,102,241,0.25)"
+                        }}
+                    >
+                        Sign Up
+                    </Link>
+                </div>
+            </nav>
+
 
             <div
                 style={{
@@ -362,8 +414,8 @@ const Singnup = () => {
                         }}
                     >
                         Already have an account?{" "}
-                        <a
-                            href="/login"
+                        <Link
+                            to="/login"
                             style={{
                                 color: "#4f46e5",
                                 fontWeight: "600",
@@ -372,7 +424,7 @@ const Singnup = () => {
                             }}
                         >
                             Login
-                        </a>
+                        </Link>
                     </p>
 
 
@@ -555,6 +607,15 @@ const Singnup = () => {
 
         </div>
     );
+};
+
+// Shared style for nav links
+const navLinkStyle = {
+    color: "#334155",
+    textDecoration: "none",
+    fontSize: "15px",
+    fontWeight: "500",
+    transition: "color 0.2s ease"
 };
 
 export default Singnup;
