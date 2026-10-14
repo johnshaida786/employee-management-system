@@ -2465,10 +2465,13 @@ form .heading {
 
 .account-actions {
     display: flex;
-
     align-items: center;
-
+    justify-content:center;
     gap: 12px;
+    width:100%;
+    margin:0;
+    padding:0;
+    flex-wrap:nowrap;
 }
 
 .table-action {
@@ -2481,7 +2484,7 @@ form .heading {
     align-items: center;
 
     justify-content: center;
-
+    flex-shrink: 0;
     border: none;
 
     border-radius: 50%;
@@ -2523,6 +2526,22 @@ form .heading {
     transform: translateY(-2px);
 }
 
+/* UPDATE BUTTON */
+.update-action-btn {
+    margin: 0;
+    flex-shrink: 0;
+}
+/* Center the Actions heading */
+.account-table thead th:last-child {
+    text-align: center;
+}
+
+/* Reduce unnecessary space around the action buttons */
+.account-table tbody td:last-child {
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+}
 
 /* ============================================================
    CHANGE PASSWORD
@@ -5158,6 +5177,30 @@ html[data-theme="dark"] select {
   padding: 0 !important;
   margin: 0 !important;
 }
+/* Edit Profile */
+/* Red border on invalid input wrapper */
+.input-wrapper-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08) !important;
+}
+
+/* Red error message under a field */
+.field-error-message {
+  margin: 6px 0 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Subtle helper text (digit counter) */
+.field-hint {
+  margin: 6px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+
+
 
 /* ============================================================
    PROFILE AVATAR — image support
@@ -5560,7 +5603,7 @@ html[data-theme="dark"] select {
 
     border-radius: 5px;
 
-    background: #ef4444;
+    background: #6644ef;
 }
 
 .view-profile-header p {
@@ -5583,7 +5626,7 @@ html[data-theme="dark"] select {
     border: none;
     border-radius: 10px;
 
-    background: #ff3b3b;
+    background: #3226dc;
     color: white;
 
     font-size: 14px;
@@ -5595,7 +5638,7 @@ html[data-theme="dark"] select {
 }
 
 .view-back-btn:hover {
-    background: #dc2626;
+    background: #3226dc;
     transform: translateY(-1px);
 }
 
@@ -5719,10 +5762,24 @@ html[data-theme="dark"] select {
     flex-shrink: 0;
 }
 
-.status-active {
-    color: #059669;
+/*Styles for Active */
 
-    font-weight: 600;
+.account-status {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  min-width: 82px;
+}
+
+.status-active {
+  background-color: #198754;
+}
+
+.status-inactive {
+  background-color: #dc3545;
 }
 
 
@@ -5788,4 +5845,53 @@ html[data-theme="dark"] select {
         align-self: flex-start;
     }
 
+}
+
+/* ============================================================
+   EDIT PROFILE — password eye toggle
+   ============================================================ */
+
+.edit-profile-card .input-wrapper .password-eye {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.edit-profile-card .input-wrapper .password-eye:hover {
+    color: #4f46e5;
+}
+
+
+
+/* =================================================
+   UPDATE BUTTON
+================================================= */
+.update-action-btn {
+    background-color: #5a4bda; /* Your theme color */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-left: 4px;
+}
+
+.update-action-btn:hover {
+    background-color: #483bb8; /* Slightly darker purple on hover */
+}
+
+/* Ensure the actions container handles 3 buttons nicely */
+.account-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between the buttons */
 }

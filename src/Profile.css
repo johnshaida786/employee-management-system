@@ -1,0 +1,217 @@
+/* =========================================================
+   PROFILE PAGE STYLES
+   Checkboxes • Submit button • Table actions
+   ========================================================= */
+
+/* =========================================================
+   1. SUBMIT BUTTON ROW — sits ABOVE the table, outside the border
+      Aligned horizontally above the checkbox (toggle) column.
+   ========================================================= */
+.submit-row-above-table {
+  display: grid;
+  /* Mirror the table's column layout:
+     FULL NAME | EMAIL | PHONE | STATUS | TOGGLE(90px) | ACTIONS(180px) */
+  grid-template-columns: 1.4fr 1.6fr 1fr 0.9fr 90px 180px;
+  align-items: center;
+  padding: 14px 20px 8px 20px;   /* space above table */
+}
+
+.submit-row-above-table .bulk-submit-btn {
+  grid-column: 5 / 6;             /* sits above the toggle column */
+  justify-self: center;
+}
+
+/* =========================================================
+   2. SUBMIT BUTTON
+   ========================================================= */
+.bulk-submit-btn {
+  display: inline-block;
+  white-space: nowrap;
+
+  font-family: "Inter", "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+
+  padding: 7px 18px;
+  line-height: 1.2;
+
+  color: #ffffff;
+  background: linear-gradient(135deg, #7c5cff, #5a3fd6);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  box-shadow: 0 3px 8px rgba(108, 78, 245, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+}
+
+.bulk-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8b6dff, #6a4ee6);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(108, 78, 245, 0.45);
+}
+
+.bulk-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.bulk-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   3. HEADER CELL — master checkbox column
+   ========================================================= */
+.toggle-header-cell {
+  text-align: center;
+  vertical-align: middle;
+  width: 90px;
+  padding: 0 !important;
+}
+
+/* =========================================================
+   4. CHECKBOXES
+   ========================================================= */
+
+/* ---------- Row checkboxes ---------- */
+.account-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+
+  position: relative;
+  vertical-align: middle;
+  margin: 0;
+
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.account-checkbox:hover {
+  border-color: #7c5cff;
+}
+
+.account-checkbox:checked {
+  background: #6c4ef5;
+  border-color: #6c4ef5;
+}
+
+.account-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0;
+  width: 5px;
+  height: 10px;
+  border: solid #ffffff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.account-checkbox:focus-visible {
+  outline: 3px solid rgba(108, 78, 245, 0.25);
+  outline-offset: 2px;
+}
+
+/* ---------- Master checkbox (purple header) ---------- */
+.master-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  background: transparent;
+  display: block;
+  margin: 0 auto;
+}
+
+.master-checkbox:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.master-checkbox:checked {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+.master-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 11px;
+  border: solid #6c4ef5;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+/* ---------- Row checkbox cell ---------- */
+.toggle-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* =========================================================
+   5. ACTIONS COLUMN
+   ========================================================= */
+.account-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  flex-wrap: nowrap;
+}
+
+.update-action-btn {
+  background: #6c4ef5;
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+
+.update-action-btn:hover:not(:disabled) {
+  background: #5a3fd6;
+  transform: translateY(-1px);
+}
+
+.update-action-btn:disabled {
+  background: #c7c2f2;
+  color: #ffffff;
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
+   6. RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px) {
+  .submit-row-above-table {
+    padding: 12px 14px 6px 14px;
+    grid-template-columns: 1fr 1fr 1fr 0.9fr 80px 160px;
+  }
+}
+
+@media (max-width: 600px) {
+  .submit-row-above-table {
+    padding: 10px 10px 6px 10px;
+  }
+}

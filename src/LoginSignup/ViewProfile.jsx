@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { User, Mail, Phone, ShieldCheck, Calendar, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {
+    User,
+    Mail,
+    Phone,
+    ShieldCheck,
+    Calendar,
+    ArrowLeft
+} from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const ViewProfile = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get the ID of the account selected in Profile.jsx
+    const profileId = location.state?.profileId;
 
     const [user, setUser] = useState({
+        id: "",
         name: "",
         email: "",
         phone: "",
@@ -18,7 +30,12 @@ const ViewProfile = () => {
     const [error, setError] = useState("");
 
     useEffect(() => {
+        let cancelled = false;
+
         const getProfile = async () => {
+            setLoading(true);
+            setError("");
+
             try {
                 const savedUser = localStorage.getItem("user");
 
@@ -29,61 +46,84 @@ const ViewProfile = () => {
 
                 const loggedInUser = JSON.parse(savedUser);
 
-                if (!loggedInUser.id) {
+                if (!loggedInUser?.id) {
                     navigate("/login");
                     return;
                 }
 
-               const response = await fetch(
-    `http://localhost:5000/profile/${loggedInUser.id}`
-);
+                // Ensure an account was selected
+                if (!profileId) {
+                    setError(
+                        "No account selected. Please return to Profile and click the View button."
+                    );
+                    return;
+                }
 
-const result = await response.json();
+                // IMPORTANT: Fetch the selected account, not the logged-in account
+                const response = await fetch(
+                    `http://localhost:5000/profile/${profileId}`
+                );
 
-if (!response.ok) {
-    setError(result.message || "Failed to load profile");
-    return;
-}
+                const result = await response.json();
 
-const profile = result.user;
+                if (!response.ok) {
+                    throw new Error(
+                        result.message || "Failed to load profile"
+                    );
+                }
 
-// Get profile photo from backend
-const rawPhoto =
-    profile.profilePhoto ||
-    profile.profile_photo ||
-    "";
+                const profile = result.user;
 
-// Create correct image URL
-const photoURL = rawPhoto
-    ? (
-        rawPhoto.startsWith("http")
-            ? rawPhoto
-            : `http://localhost:5000/${rawPhoto.replace(/^\/+/, "")}`
-      )
-    : "";
+                if (!profile) {
+                    throw new Error("Profile information was not returned.");
+                }
 
-// Store backend data
-setUser({
-    id: profile.id || loggedInUser.id,
-    name: profile.name || "",
-    email: profile.email || "",
-    phone: profile.phone || "",
-    status: profile.status || "Active",
-    createdAt: profile.createdAt || null,
-    profilePhoto: photoURL
-});
+                const rawPhoto =
+                    profile.profilePhoto ||
+                    profile.profile_photo ||
+                    "";
 
+                const photoURL = rawPhoto
+                    ? rawPhoto.startsWith("http")
+                        ? rawPhoto
+                        : `http://localhost:5000/${rawPhoto.replace(/^\/+/, "")}`
+                    : "";
 
+                if (!cancelled) {
+                    setUser({
+                        id: profile.id || profileId,
+                        name: profile.name || "",
+                        email: profile.email || "",
+                        phone: profile.phone || "",
+                        status: profile.status || "Active",
+                        createdAt:
+                            profile.createdAt ||
+                            profile.created_at ||
+                            null,
+                        profilePhoto: photoURL
+                    });
+                }
             } catch (error) {
                 console.error("View profile error:", error);
-                setError("Cannot connect to server.");
+
+                if (!cancelled) {
+                    setError(
+                        error.message || "Cannot connect to server."
+                    );
+                }
             } finally {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
         };
 
         getProfile();
-    }, [navigate]);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [navigate, profileId]);
 
     if (loading) {
         return (
@@ -110,7 +150,6 @@ setUser({
 
             {/* HEADER */}
             <div className="view-profile-header">
-
                 <div>
                     <h1>
                         <span></span>
@@ -118,7 +157,7 @@ setUser({
                     </h1>
 
                     <p>
-                        View your personal account information
+                        View account information
                     </p>
                 </div>
 
@@ -130,23 +169,16 @@ setUser({
                     <ArrowLeft size={18} />
                     Back
                 </button>
-
             </div>
-
 
             {/* PROFILE CARD */}
             <div className="view-profile-card">
 
                 {/* PROFILE IMAGE */}
                 <div className="view-profile-photo-section">
-
                     {user.profilePhoto ? (
                         <img
-                            src={
-                                user.profilePhoto.startsWith("http")
-                                    ? user.profilePhoto
-                                    : `http://localhost:5000${user.profilePhoto}`
-                            }
+                            src={user.profilePhoto}
                             alt="Profile"
                             className="view-profile-photo"
                         />
@@ -157,97 +189,65 @@ setUser({
                     )}
 
                     <p>Profile Image</p>
-
                 </div>
-
 
                 {/* INFORMATION */}
                 <div className="view-profile-grid">
 
-                    {/* NAME */}
                     <div className="view-profile-field">
                         <label>Full Name</label>
-
                         <div className="view-profile-input">
                             <User size={19} />
-
-                            <span>
-                                {user.name || "Not available"}
-                            </span>
+                            <span>{user.name || "Not available"}</span>
                         </div>
                     </div>
 
-
-                    {/* EMAIL */}
                     <div className="view-profile-field">
                         <label>Email</label>
-
                         <div className="view-profile-input">
                             <Mail size={19} />
-
-                            <span>
-                                {user.email || "Not available"}
-                            </span>
+                            <span>{user.email || "Not available"}</span>
                         </div>
                     </div>
 
-
-                    {/* PHONE */}
                     <div className="view-profile-field">
                         <label>Phone Number</label>
-
                         <div className="view-profile-input">
                             <Phone size={19} />
-
-                            <span>
-                                {user.phone || "Not available"}
-                            </span>
+                            <span>{user.phone || "Not available"}</span>
                         </div>
                     </div>
 
-
-                    {/* STATUS */}
                     <div className="view-profile-field">
                         <label>Account Status</label>
-
                         <div className="view-profile-input">
                             <ShieldCheck size={19} />
-
                             <span className="status-active">
                                 {user.status || "Active"}
                             </span>
                         </div>
                     </div>
 
-
-                    {/* CREATED DATE */}
                     <div className="view-profile-field">
                         <label>Account Created</label>
-
                         <div className="view-profile-input">
                             <Calendar size={19} />
-
                             <span>
                                 {user.createdAt
                                     ? new Date(
                                           user.createdAt
-                                      ).toLocaleDateString(
-                                          "en-IN",
-                                          {
-                                              day: "2-digit",
-                                              month: "short",
-                                              year: "numeric"
-                                          }
-                                      )
+                                      ).toLocaleDateString("en-IN", {
+                                          day: "2-digit",
+                                          month: "short",
+                                          year: "numeric"
+                                      })
                                     : "Not available"}
                             </span>
                         </div>
                     </div>
 
                 </div>
-
             </div>
-
         </div>
     );
 };
