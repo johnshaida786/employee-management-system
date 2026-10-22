@@ -5895,3 +5895,150 @@ html[data-theme="dark"] select {
     align-items: center;
     gap: 8px; /* Space between the buttons */
 }
+
+/* =========================================================
+   ABSOLUTE FINAL FIX - FULL WIDTH TABLE
+   ========================================================= */
+
+/* 1. Fix the wrapper so it doesn't trap the table in a scrollbar */
+.account-table-wrapper {
+  width: 100% !important;
+  overflow-x: hidden !important; 
+  display: block !important;
+}
+
+/* 2. Force the white card to fit the content */
+.account-table-card {
+  width: 100% !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  height: fit-content !important; 
+  margin-bottom: 24px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 3. Destroy the 800px minimum width */
+.account-table {
+  width: 100% !important;
+  min-width: 0 !important; /* THIS FIXES THE CUT-OFF */
+  border-collapse: collapse !important;
+  table-layout: auto !important; 
+}
+
+/* 4. Force the purple header to span full width */
+.account-table thead {
+  background-color: #4f46e5 !important;
+}
+
+.account-table thead th {
+  height: auto !important; 
+  padding: 16px 20px !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  white-space: nowrap !important;
+}
+
+/* 5. Force the body rows to span full width */
+.account-table tbody td {
+  height: auto !important; 
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  vertical-align: middle !important;
+}
+
+/* 6. Fix the Actions Column Alignment */
+.account-table th:last-child,
+.account-table td:last-child {
+  text-align: right !important;
+  padding-right: 30px !important;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  }
+}
+
+/* --- Mini Calendar Styles --- */
+.mini-calendar-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  z-index: 100;
+}
+
+.mini-calendar-header {
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+
+.mini-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.mini-calendar-day-name {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.mini-calendar-day {
+  font-size: 13px;
+  padding: 6px 0;
+  border-radius: 6px;
+  color: #334155;
+}
+
+.mini-calendar-day.today {
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.mini-calendar-day.empty {
+  visibility: hidden;
+}
+
+/* --- Promote Button Hover Animation --- */
+.promote-action {
+  background: #fffbeb;
+  color: #d97706;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; /* Bouncy animation */
+}
+
+.promote-action:hover {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  transform: scale(1.15) translateY(-2px) !important; /* Pops out */
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* --- Promote Button Hover Animation --- */
+.promote-action {
+  background: #fffbeb;
+  color: #d97706;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; /* Bouncy animation */
+}
+
+.promote-action:hover {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  transform: scale(1.15) translateY(-2px) !important; /* Pops out */
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}

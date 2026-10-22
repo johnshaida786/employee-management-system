@@ -124,6 +124,8 @@ const Login = () => {
 
             if (response.ok) {
 
+                localStorage.setItem("token",result.token)
+
                 setMsg("");
                 setPasswordError(false);
 

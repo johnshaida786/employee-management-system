@@ -51,17 +51,24 @@ const ViewProfile = () => {
                     return;
                 }
 
-                // Ensure an account was selected
-                if (!profileId) {
-                    setError(
-                        "No account selected. Please return to Profile and click the View button."
-                    );
-                    return;
-                }
+               const targetId=profileId||loggedInUser.id;
 
                 // IMPORTANT: Fetch the selected account, not the logged-in account
+                 
+                const token=localStorage.getItem("token");
+
                 const response = await fetch(
-                    `http://localhost:5000/profile/${profileId}`
+                    "http://localhost:5000/profile/getProfile",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization:`Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            userId: targetId,
+                        }),
+                    }
                 );
 
                 const result = await response.json();
@@ -235,12 +242,12 @@ const ViewProfile = () => {
                             <span>
                                 {user.createdAt
                                     ? new Date(
-                                          user.createdAt
-                                      ).toLocaleDateString("en-IN", {
-                                          day: "2-digit",
-                                          month: "short",
-                                          year: "numeric"
-                                      })
+                                        user.createdAt
+                                    ).toLocaleDateString("en-IN", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric"
+                                    })
                                     : "Not available"}
                             </span>
                         </div>

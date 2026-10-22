@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Pencil, Eye } from "lucide-react";
+import { User, Pencil, Eye, Shield, ShieldOff } from "lucide-react";
 import Pagination from "./Pagination";
 import "../Profile.css";
 
@@ -17,23 +17,23 @@ const getPhotoUrl = (photo) => {
 const Profile = () => {
   const navigate = useNavigate();
 
+  const loggedInUser = JSON.parse(localStorage.getItem("user") || "null");
+  const isAdmin = loggedInUser?.role === "admin";
+
   const [user, setUser] = useState({
     id: "",
     name: "",
     email: "",
     phone: "",
     status: "Active",
+    role: "user",
     createdAt: null,
     profilePhoto: "",
   });
 
   const [accounts, setAccounts] = useState([]);
   const [selectedAccounts, setSelectedAccounts] = useState([]);
-
-  // Turns ON when the user clicks the master checkbox,
-  // stays ON while individual rows are toggled,
-  // turns OFF when selection drops to 0 or page changes.
-  const [masterMode, setMasterMode] = useState(false);
+  const [selectionMode, setSelectionMode] = useState("individual");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalAccounts, setTotalAccounts] = useState(0);
@@ -43,16 +43,18 @@ const Profile = () => {
   const [profileError, setProfileError] = useState("");
   const [accountsError, setAccountsError] = useState("");
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
+  const [updatingRoleId, setUpdatingRoleId] = useState(null);
   const [submittingBulk, setSubmittingBulk] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
 
-  // Derived: is every account on the current page selected?
+  const visibleAccounts = accounts;
+  const colSpanCount = 6; 
+
   const allOnPageSelected =
     accounts.length > 0 &&
     accounts.every((account) => selectedAccounts.includes(account.id));
 
-  // Derived: should the Submit button appear?
-  // -> Only in master mode AND at least one row is still selected.
-  const showSubmit = masterMode && selectedAccounts.length > 0;
+  const showSubmitRow = selectedAccounts.length > 0;
 
   // ---------------- Profile header ----------------
   useEffect(() => {
@@ -72,8 +74,21 @@ const Profile = () => {
           return;
         }
 
-        const response = await fetch(`${API_URL}/profile/${loggedInUser.id}`);
-        const result = await response.json();
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/profile/getProfile`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId: loggedInUser.id }),
+        });
+        const result = await response.json().catch(() => ({}));
         if (!response.ok) {
           throw new Error(result.message || "Failed to load profile.");
         }
@@ -92,23 +107,14 @@ const Profile = () => {
             email: profile.email || "",
             phone: profile.phone || "",
             status: profile.status || "Active",
+            role: loggedInUser.role || "user",
             createdAt: profile.createdAt || null,
             profilePhoto: photoURL,
           });
-
-          const updatedSession = {
-            ...loggedInUser,
-            name: profile.name || loggedInUser.name,
-            email: profile.email || loggedInUser.email,
-            phone: profile.phone || loggedInUser.phone,
-            profilePhoto: photoURL,
-          };
-          localStorage.setItem("user", JSON.stringify(updatedSession));
         }
       } catch (error) {
         console.error("Profile loading error:", error);
-        if (!cancelled)
-          setProfileError(error.message || "Cannot connect to server.");
+        if (!cancelled) setProfileError(error.message || "Cannot connect to server.");
       } finally {
         if (!cancelled) setLoadingProfile(false);
       }
@@ -128,16 +134,36 @@ const Profile = () => {
       setLoadingAccounts(true);
       setAccountsError("");
 
+      if (!isAdmin) {
+        if (user.id) {
+          setAccounts([
+            {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              phone: user.phone,
+              status: user.status,
+              role: user.role,
+              profilePhoto: user.profilePhoto,
+            },
+          ]);
+          setTotalAccounts(1);
+          setTotalPages(1);
+        }
+        setLoadingAccounts(false);
+        return;
+      }
+
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(
-          `${API_URL}/admin/accounts?page=${currentPage}&limit=${PAGE_SIZE}`
+          `${API_URL}/admin/getAccounts?page=${currentPage}&limit=${PAGE_SIZE}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         if (!response.ok) {
           const text = await response.text();
-          throw new Error(
-            `Request failed (${response.status}): ${text.slice(0, 120)}`
-          );
+          throw new Error(`Request failed (${response.status}): ${text.slice(0, 120)}`);
         }
 
         const result = await response.json();
@@ -150,6 +176,7 @@ const Profile = () => {
               email: account.email || "",
               phone: account.phone || "",
               status: account.status || "Active",
+              role: account.role || "user", 
               profilePhoto: getPhotoUrl(
                 account.profilePhoto || account.profile_photo || ""
               ),
@@ -175,98 +202,127 @@ const Profile = () => {
     };
 
     getAccounts();
-    return () => {
-      cancelled = true;
-    };
-  }, [currentPage]);
-
-  // ---------------- Auto-exit master mode when nothing is selected ----------------
-  useEffect(() => {
-    if (masterMode && selectedAccounts.length === 0) {
-      setMasterMode(false);
-    }
-  }, [masterMode, selectedAccounts]);
+    return () => { cancelled = true; };
+  }, [currentPage, isAdmin, user.id]);
 
   // ---------------- Handlers ----------------
   const handlePageChange = (nextPage) => {
     const page = Number(nextPage);
-
-    if (
-      Number.isNaN(page) ||
-      page < 1 ||
-      (totalPages > 0 && page > totalPages) ||
-      page === currentPage
-    ) {
-      return;
-    }
-
+    if (Number.isNaN(page) || page < 1 || (totalPages > 0 && page > totalPages) || page === currentPage) return;
     setSelectedAccounts([]);
-    setMasterMode(false);
+    setStatusFilter("");
+    setSelectionMode("individual");
     setCurrentPage(page);
   };
 
   const handleSelectAll = (event) => {
     const checked = event.target.checked;
-    setSelectedAccounts(checked ? accounts.map((a) => a.id) : []);
-    setMasterMode(checked);      // <-- enter/exit master mode here only
+    if (checked) {
+      setSelectionMode("master");
+      setSelectedAccounts(accounts.map((account) => account.id));
+    } else {
+      setSelectedAccounts([]);
+      setSelectionMode("individual");
+    }
+  };
+
+  const handleFilterChange = (event) => {
+    const value = event.target.value;
+    setStatusFilter(value);
+    if (!value) {
+      setSelectedAccounts([]);
+      setSelectionMode("individual");
+      return;
+    }
+    if (selectionMode === "master") {
+      const oppositeStatusIds = accounts
+        .filter((account) => (account.status || "Active") !== value)
+        .map((account) => account.id);
+      setSelectedAccounts(oppositeStatusIds);
+    }
   };
 
   const handleAccountSelect = (accountId) => {
+    if (selectionMode === "master") {
+      setSelectionMode("individual");
+      setSelectedAccounts([accountId]);
+      return;
+    }
     setSelectedAccounts((previous) =>
       previous.includes(accountId)
         ? previous.filter((id) => id !== accountId)
         : [...previous, accountId]
     );
-    // Do NOT touch masterMode here — that's what keeps Submit visible.
+  };
+
+  // ---------------- Promote / Demote Role (No Alerts) ----------------
+  const handleUpdateRole = async (accountId, newRole) => {
+    setUpdatingRoleId(accountId);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/admin/updateRole`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ accountId, role: newRole }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update role");
+
+      // Update the local state so the UI changes instantly without a page refresh
+      setAccounts((prev) =>
+        prev.map((acc) => (acc.id === accountId ? { ...acc, role: newRole } : acc))
+      );
+      
+    } catch (error) {
+      console.error("Update role error:", error);
+    } finally {
+      setUpdatingRoleId(null);
+    }
   };
 
   // ---------------- Bulk submit ----------------
   const handleBulkSubmit = async () => {
-    if (selectedAccounts.length === 0) return;
+    if (selectedAccounts.length === 0 || !statusFilter) return;
+
+    const targets = accounts.filter((account) => selectedAccounts.includes(account.id));
+    if (targets.length === 0) return;
 
     setSubmittingBulk(true);
 
     try {
+      const token = localStorage.getItem("token");
       const results = await Promise.all(
-        selectedAccounts.map(async (id) => {
-          const account = accounts.find((a) => a.id === id);
-          if (!account) return null;
-
-          const newStatus =
-            (account.status || "Active") === "Active" ? "Inactive" : "Active";
-
-          const response = await fetch(`${API_URL}/update-status/${id}`, {
+        targets.map(async (account) => {
+          const response = await fetch(`${API_URL}/admin/updateStatus`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: newStatus }),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ accountId: account.id, status: statusFilter }),
           });
 
-          if (!response.ok) {
-            const result = await response.json().catch(() => ({}));
-            throw new Error(
-              result.message || `Failed to update account ${id}.`
-            );
-          }
-
-          return { id, newStatus };
+          if (!response.ok) throw new Error(`Failed to update account ${account.id}.`);
+          return { id: account.id, newStatus: statusFilter };
         })
       );
 
-      setAccounts((prev) =>
-        prev.map((item) => {
-          const updated = results.find((r) => r && r.id === item.id);
-          return updated ? { ...item, status: updated.newStatus } : item;
+      setAccounts((previous) =>
+        previous.map((account) => {
+          const updated = results.find((result) => result.id === account.id);
+          return updated ? { ...account, status: updated.newStatus } : account;
         })
       );
 
       setSelectedAccounts([]);
-      setMasterMode(false);      // <-- exit master mode after success
-      window.alert(
-        `Updated ${results.filter(Boolean).length} account(s) successfully.`
-      );
+      setStatusFilter("");
+      setSelectionMode("individual");
     } catch (error) {
       console.error("Bulk submit error:", error);
-      window.alert(error.message || "Bulk update failed.");
     } finally {
       setSubmittingBulk(false);
     }
@@ -274,45 +330,30 @@ const Profile = () => {
 
   // ---------------- Individual status update ----------------
   const handleUpdateStatus = async (account) => {
-    if (!selectedAccounts.includes(account.id)) {
-      window.alert("Please tick the checkbox for this row before updating.");
-      return;
-    }
+    if (!selectedAccounts.includes(account.id)) return;
 
-    const newStatus =
-      (account.status || "Active") === "Active" ? "Inactive" : "Active";
-
+    const newStatus = (account.status || "Active") === "Active" ? "Inactive" : "Active";
     setUpdatingStatusId(account.id);
 
     try {
-      const response = await fetch(
-        `${API_URL}/update-status/${account.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-      const result = await response.json().catch(() => ({}));
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/admin/updateStatus`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ accountId: account.id, status: newStatus }),
+      });
 
-      if (!response.ok) {
-        throw new Error(
-          result.message || "Failed to update account status."
-        );
-      }
+      if (!response.ok) throw new Error("Failed to update account status.");
 
       setAccounts((previous) =>
-        previous.map((item) =>
-          item.id === account.id ? { ...item, status: newStatus } : item
-        )
+        previous.map((item) => (item.id === account.id ? { ...item, status: newStatus } : item))
       );
-
       setSelectedAccounts((prev) => prev.filter((id) => id !== account.id));
-
-      window.alert(`Account status updated to ${newStatus}.`);
     } catch (error) {
       console.error("Update status error:", error);
-      window.alert(error.message || "Cannot update account status.");
     } finally {
       setUpdatingStatusId(null);
     }
@@ -320,75 +361,42 @@ const Profile = () => {
 
   // ---------------- Render ----------------
   if (loadingProfile) {
-    return (
-      <div className="profile-page">
-        <div className="profile-loading">Loading profile...</div>
-      </div>
-    );
+    return <div className="profile-page"><div className="profile-loading">Loading profile...</div></div>;
   }
 
   return (
     <div className="profile-page">
-      {/* ---------- Profile header ---------- */}
       <section className="profile-header card">
         <div className="profile-avatar">
           {user.profilePhoto ? (
-            <img
-              src={user.profilePhoto}
-              alt={user.name || "Profile"}
-              className="profile-avatar-img"
-              onError={(event) => {
-                event.currentTarget.style.display = "none";
-                event.currentTarget.parentElement.classList.add(
-                  "show-fallback"
-                );
-              }}
-            />
-          ) : (
-            <User size={36} />
-          )}
+            <img src={user.profilePhoto} alt={user.name || "Profile"} className="profile-avatar-img" />
+          ) : ( <User size={36} /> )}
         </div>
-
         <div className="profile-header-info">
           <h1 className="profile-name">{user.name || "Unnamed User"}</h1>
           <p className="profile-email">{user.email || "Not available"}</p>
-          <span className="badge badge-success">
-            {user.status || "Active"}
-          </span>
+          <span className="badge badge-success">{user.status || "Active"}</span>
         </div>
-
-        <button
-          type="button"
-          className="btn btn-primary edit-profile-button"
-          onClick={() => navigate("/edit-profile")}
-        >
-          <Pencil size={16} />
-          Edit Profile
+        <button type="button" className="btn btn-primary edit-profile-button" onClick={() => navigate("/edit-profile")}>
+          <Pencil size={16} /> Edit Profile
         </button>
       </section>
 
-      {profileError && (
-        <p className="profile-password-error">{profileError}</p>
-      )}
+      {profileError && <p className="profile-password-error">{profileError}</p>}
 
-      {/* ---------- Account Information ---------- */}
       <section className="section-block">
         <h2 className="section-title">Account Information</h2>
 
         <div className="account-table-card">
-          {/* Submit button — OUTSIDE the table, aligned above the checkbox column.
-              Now driven by `showSubmit` so unticking a single row does NOT hide it. */}
-          {showSubmit && (
+          {isAdmin && showSubmitRow && (
             <div className="submit-row-above-table">
-              <button
-                type="button"
-                className="bulk-submit-btn"
-                onClick={handleBulkSubmit}
-                disabled={submittingBulk}
-              >
-                {submittingBulk
-                  ? "Saving..."
-                  : `Submit (${selectedAccounts.length})`}
+              <select className="status-filter-dropdown" value={statusFilter} onChange={handleFilterChange} disabled={submittingBulk}>
+                <option value="">Select status…</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+              <button type="button" className="bulk-submit-btn" onClick={handleBulkSubmit} disabled={submittingBulk || !statusFilter}>
+                {submittingBulk ? "Saving..." : `Submit (${selectedAccounts.length})`}
               </button>
             </div>
           )}
@@ -401,46 +409,27 @@ const Profile = () => {
                   <th>EMAIL</th>
                   <th>PHONE</th>
                   <th>STATUS</th>
-
                   <th className="toggle-header-cell">
-                    <input
-                      type="checkbox"
-                      className="account-checkbox master-checkbox"
-                      checked={allOnPageSelected}
-                      onChange={handleSelectAll}
-                      aria-label="Select all accounts on this page"
-                    />
+                    {isAdmin && (
+                      <input type="checkbox" className="account-checkbox master-checkbox" checked={allOnPageSelected} onChange={handleSelectAll} />
+                    )}
                   </th>
-
                   <th>ACTIONS</th>
                 </tr>
               </thead>
 
               <tbody>
                 {loadingAccounts ? (
-                  <tr>
-                    <td colSpan={6} className="accounts-message-cell">
-                      Loading accounts...
-                    </td>
-                  </tr>
+                  <tr><td colSpan={colSpanCount} className="accounts-message-cell">Loading accounts...</td></tr>
                 ) : accountsError ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="accounts-message-cell accounts-error"
-                    >
-                      {accountsError}
-                    </td>
-                  </tr>
-                ) : accounts.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="accounts-message-cell">
-                      No accounts found.
-                    </td>
-                  </tr>
+                  <tr><td colSpan={colSpanCount} className="accounts-message-cell accounts-error">{accountsError}</td></tr>
+                ) : visibleAccounts.length === 0 ? (
+                  <tr><td colSpan={colSpanCount} className="accounts-message-cell">No accounts found.</td></tr>
                 ) : (
-                  accounts.map((account) => {
+                  visibleAccounts.map((account) => {
                     const isSelected = selectedAccounts.includes(account.id);
+                    // Check if this row belongs to the currently logged-in user
+                    const isSelf = account.id === user.id;
 
                     return (
                       <tr key={account.id}>
@@ -448,18 +437,8 @@ const Profile = () => {
                           <div className="account-user">
                             <div className="account-user-avatar">
                               {account.profilePhoto ? (
-                                <img
-                                  src={account.profilePhoto}
-                                  alt={account.name || "Account"}
-                                  className="account-user-avatar-img"
-                                  onError={(event) => {
-                                    event.currentTarget.style.display =
-                                      "none";
-                                  }}
-                                />
-                              ) : (
-                                <User size={22} />
-                              )}
+                                <img src={account.profilePhoto} alt={account.name || "Account"} className="account-user-avatar-img" />
+                              ) : ( <User size={22} /> )}
                             </div>
                             <span>{account.name || "Not available"}</span>
                           </div>
@@ -467,71 +446,49 @@ const Profile = () => {
                         <td>{account.email || "Not available"}</td>
                         <td>{account.phone || "Not available"}</td>
                         <td>
-                          <span
-                            className={`account-status ${
-                              (account.status || "Active") === "Active"
-                                ? "status-active"
-                                : "status-inactive"
-                            }`}
-                          >
+                          <span className={`account-status ${(account.status || "Active") === "Active" ? "status-active" : "status-inactive"}`}>
                             {account.status || "Active"}
                           </span>
                         </td>
-
                         <td className="toggle-cell">
-                          <input
-                            type="checkbox"
-                            className="account-checkbox"
-                            checked={isSelected}
-                            onChange={() => handleAccountSelect(account.id)}
-                            aria-label={`Select ${
-                              account.name || account.email
-                            }`}
-                          />
+                          <input type="checkbox" className="account-checkbox" checked={isSelected} onChange={() => handleAccountSelect(account.id)} />
                         </td>
-
                         <td className="actions-cell">
                           <div className="account-actions">
-                            <button
-                              type="button"
-                              className="table-action view-action"
-                              title="View Profile"
-                              onClick={() =>
-                                navigate("/view-profile", {
-                                  state: { profileId: account.id },
-                                })
-                              }
-                            >
+                            
+                            {/* --- PROMOTE / DEMOTE BUTTONS --- */}
+                            {isAdmin && !isSelf && (
+                              account.role === "admin" ? (
+                                <button
+                                  type="button"
+                                  className="table-action demote-action"
+                                  title="Remove Admin Access"
+                                  disabled={updatingRoleId === account.id}
+                                  onClick={() => handleUpdateRole(account.id, "user")}
+                                >
+                                  {updatingRoleId === account.id ? "..." : <ShieldOff size={17} />}
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="table-action promote-action"
+                                  title="Make Secondary Admin"
+                                  disabled={updatingRoleId === account.id}
+                                  onClick={() => handleUpdateRole(account.id, "admin")}
+                                >
+                                  {updatingRoleId === account.id ? "..." : <Shield size={17} />}
+                                </button>
+                              )
+                            )}
+                            
+                            <button type="button" className="table-action view-action" title="View Profile" onClick={() => navigate("/view-profile", { state: { profileId: account.id } })}>
                               <Eye size={17} />
                             </button>
-                            <button
-                              type="button"
-                              className="table-action edit-action"
-                              title="Edit Profile"
-                              onClick={() =>
-                                navigate("/edit-profile", {
-                                  state: { profileId: account.id },
-                                })
-                              }
-                            >
+                            <button type="button" className="table-action edit-action" title="Edit Profile" onClick={() => navigate("/edit-profile", { state: { profileId: account.id } })}>
                               <Pencil size={17} />
                             </button>
-                            <button
-                              type="button"
-                              className="update-action-btn"
-                              disabled={
-                                updatingStatusId === account.id || !isSelected
-                              }
-                              onClick={() => handleUpdateStatus(account)}
-                              title={
-                                isSelected
-                                  ? "Toggle status"
-                                  : "Tick the checkbox first"
-                              }
-                            >
-                              {updatingStatusId === account.id
-                                ? "Saving..."
-                                : "Update"}
+                            <button type="button" className="update-action-btn" disabled={updatingStatusId === account.id || !isSelected} onClick={() => handleUpdateStatus(account)}>
+                              {updatingStatusId === account.id ? "Saving..." : "Update"}
                             </button>
                           </div>
                         </td>
@@ -544,13 +501,7 @@ const Profile = () => {
           </div>
 
           {!loadingAccounts && !accountsError && totalAccounts > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalAccounts}
-              pageSize={PAGE_SIZE}
-              onPageChange={handlePageChange}
-            />
+            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={totalAccounts} pageSize={PAGE_SIZE} onPageChange={handlePageChange} />
           )}
         </div>
       </section>

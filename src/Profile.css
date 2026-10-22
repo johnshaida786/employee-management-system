@@ -1,48 +1,31 @@
 /* =========================================================
    PROFILE PAGE STYLES
-   Checkboxes • Submit button • Table actions
    ========================================================= */
 
-/* =========================================================
-   1. SUBMIT BUTTON ROW — sits ABOVE the table, outside the border
-      Aligned horizontally above the checkbox (toggle) column.
-   ========================================================= */
 .submit-row-above-table {
-  display: grid;
-  /* Mirror the table's column layout:
-     FULL NAME | EMAIL | PHONE | STATUS | TOGGLE(90px) | ACTIONS(180px) */
-  grid-template-columns: 1.4fr 1.6fr 1fr 0.9fr 90px 180px;
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
-  padding: 14px 20px 8px 20px;   /* space above table */
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 14px 20px 0 20px;
 }
 
-.submit-row-above-table .bulk-submit-btn {
-  grid-column: 5 / 6;             /* sits above the toggle column */
-  justify-self: center;
-}
-
-/* =========================================================
-   2. SUBMIT BUTTON
-   ========================================================= */
 .bulk-submit-btn {
   display: inline-block;
   white-space: nowrap;
-
   font-family: "Inter", "Segoe UI", sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-
   padding: 7px 18px;
   line-height: 1.2;
-
   color: #ffffff;
   background: linear-gradient(135deg, #7c5cff, #5a3fd6);
   border: none;
   border-radius: 6px;
   cursor: pointer;
-
   box-shadow: 0 3px 8px rgba(108, 78, 245, 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
 }
@@ -53,18 +36,27 @@
   box-shadow: 0 5px 12px rgba(108, 78, 245, 0.45);
 }
 
-.bulk-submit-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
 .bulk-submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* =========================================================
-   3. HEADER CELL — master checkbox column
-   ========================================================= */
+.status-filter-dropdown {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  min-width: 160px;
+}
+
+.status-filter-dropdown:focus {
+  border-color: #5b4ee8;
+  box-shadow: 0 0 0 2px rgba(91, 78, 232, 0.15);
+}
+
 .toggle-header-cell {
   text-align: center;
   vertical-align: middle;
@@ -72,27 +64,18 @@
   padding: 0 !important;
 }
 
-/* =========================================================
-   4. CHECKBOXES
-   ========================================================= */
-
-/* ---------- Row checkboxes ---------- */
 .account-checkbox {
   appearance: none;
   -webkit-appearance: none;
-
   width: 18px;
   height: 18px;
-
   border: 2px solid #cbd5e1;
   border-radius: 4px;
   background: #ffffff;
   cursor: pointer;
-
   position: relative;
   vertical-align: middle;
   margin: 0;
-
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -117,12 +100,6 @@
   transform: rotate(45deg);
 }
 
-.account-checkbox:focus-visible {
-  outline: 3px solid rgba(108, 78, 245, 0.25);
-  outline-offset: 2px;
-}
-
-/* ---------- Master checkbox (purple header) ---------- */
 .master-checkbox {
   width: 20px;
   height: 20px;
@@ -153,15 +130,11 @@
   transform: rotate(45deg);
 }
 
-/* ---------- Row checkbox cell ---------- */
 .toggle-cell {
   text-align: center;
   vertical-align: middle;
 }
 
-/* =========================================================
-   5. ACTIONS COLUMN
-   ========================================================= */
 .account-actions {
   display: flex;
   align-items: center;
@@ -201,17 +174,78 @@
 }
 
 /* =========================================================
-   6. RESPONSIVE
+   THE FIX FOR THE TABLE LAYOUT
    ========================================================= */
-@media (max-width: 900px) {
-  .submit-row-above-table {
-    padding: 12px 14px 6px 14px;
-    grid-template-columns: 1fr 1fr 1fr 0.9fr 80px 160px;
-  }
+
+.account-table-card {
+  width: 100% !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  height: fit-content !important; 
+  margin-bottom: 24px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
 
-@media (max-width: 600px) {
-  .submit-row-above-table {
-    padding: 10px 10px 6px 10px;
-  }
+.account-table-wrapper {
+  width: 100% !important;
+  overflow-x: hidden !important; 
+}
+
+.account-table {
+  width: 100% !important;
+  min-width: 100% !important; 
+  border-collapse: collapse !important;
+  table-layout: auto !important; 
+}
+
+.account-table thead tr {
+  background-color: #4f46e5 !important;
+}
+
+.account-table thead th {
+  padding: 16px 20px ;
+  color: #ffffff ;
+  text-align: left ;
+  font-weight: 700 ;
+  white-space: nowrap ;
+}
+
+.account-table tbody td {
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  vertical-align: middle !important;
+}
+
+.account-table th:last-child,
+.account-table td:last-child {
+  text-align: center !important;
+  padding-right:10px !important;
+  padding-left:30px !important;
+}
+
+/* --- Promote Button (Gold/Yellow) --- */
+.promote-action {
+  background: #fffbeb;
+  color: #d97706;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+.promote-action:hover {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  transform: scale(1.15) translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* --- Demote Button (Red) --- */
+.demote-action {
+  background: #fef2f2;
+  color: #dc2626;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+.demote-action:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  transform: scale(1.15) translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }

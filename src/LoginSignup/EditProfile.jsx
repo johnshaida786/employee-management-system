@@ -49,14 +49,21 @@ const EditProfile = () => {
           return;
         }
 
-        if (!profileId) {
-          setError(
-            "No account selected. Please return to Profile and click Edit."
-          );
-          return;
-        }
+       const targetId = profileId || loggedInUser.id;
 
-        const response = await fetch(`${API_URL}/profile/${profileId}`);
+        const token=localStorage.getItem("token");
+        const response = await fetch(`${API_URL}/profile/getProfile`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:`Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: targetId,
+          }),
+        });
+        
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -189,13 +196,18 @@ const EditProfile = () => {
     }
 
     try {
-      // 1. Save name, email, phone
+      const token=localStorage.getItem("token");
+      
       const profileResponse = await fetch(
-        `${API_URL}/profile/${targetUserId}`,
+        `${API_URL}/profile/updateProfile`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:`Bearer ${token}`,
+          },
           body: JSON.stringify({
+            userId: targetUserId,
             name: formData.name.trim(),
             email: formData.email.trim(),
             phone: trimmedPhone,
@@ -203,6 +215,7 @@ const EditProfile = () => {
         }
       );
 
+      
       const profileResult = await profileResponse.json();
       if (!profileResponse.ok) {
         throw new Error(profileResult.message || "Failed to update profile");
@@ -220,7 +233,9 @@ const EditProfile = () => {
       if (wantsPasswordChange) {
         const passwordResponse = await fetch(`${API_URL}/change-password`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+            Authorization:`Bearer ${token}`,
+           },
           body: JSON.stringify({
             email: loggedInUser.email,
             currentPassword: formData.currentPassword,
@@ -240,11 +255,19 @@ const EditProfile = () => {
       if (selectedPhoto) {
         const photoData = new FormData();
         photoData.append("profile_photo", selectedPhoto);
+        photoData.append("userId", String(targetUserId));
 
         const photoResponse = await fetch(
-          `${API_URL}/profile/${targetUserId}/photo`,
-          { method: "POST", body: photoData }
+          `${API_URL}/profile/uploadPhoto`,
+          {
+            method: "POST",
+            headers:{
+              Authorization:`Bearer ${token}`,
+            },
+            body: photoData,
+          }
         );
+
 
         const photoResult = await photoResponse.json();
         if (!photoResponse.ok) {
@@ -323,9 +346,8 @@ const EditProfile = () => {
         <div className="profile-photo-section">
           <label
             htmlFor="profilePhoto"
-            className={`profile-photo-wrapper ${
-              profilePhoto ? "" : "no-photo"
-            }`}
+            className={`profile-photo-wrapper ${profilePhoto ? "" : "no-photo"
+              }`}
           >
             {profilePhoto ? (
               <img
@@ -448,9 +470,8 @@ const EditProfile = () => {
               Phone Number <span>*</span>
             </label>
             <div
-              className={`input-wrapper ${
-                phoneError ? "input-wrapper-error" : ""
-              }`}
+              className={`input-wrapper ${phoneError ? "input-wrapper-error" : ""
+                }`}
             >
               <Phone size={18} />
               <input

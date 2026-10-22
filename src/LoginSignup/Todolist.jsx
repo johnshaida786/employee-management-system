@@ -24,7 +24,7 @@ function Todolist() {
     // STATE
     // =====================================================
 
-    const [tasks, setTasks] = useState([""]);
+    const [tasks, setTasks] = useState([]);
 
     const [newTask, setNewTask] = useState("");
 
@@ -41,9 +41,15 @@ function Todolist() {
             setLoading(false);
             return;
         }
+        const token=localStorage.getItem("token");
 
         fetch(
-            `http://localhost:5000/tasks/${loggedInUser.id}`
+            `http://localhost:5000/tasks`,
+            {
+                headers:{
+                    Authorization:`Bearer ${token}`,
+                }
+            }
         )
             .then((response) => {
 
@@ -116,7 +122,8 @@ function Todolist() {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        Authorization:`Bearer ${localStorage.getItem("token")}`,
                     },
 
                     body: JSON.stringify({
@@ -174,7 +181,10 @@ function Todolist() {
             const response = await fetch(
                 `http://localhost:5000/tasks/${taskId}`,
                 {
-                    method: "DELETE"
+                    method: "DELETE",
+                    headers:{
+                       Authorization:`Bearer ${localStorage.getItem("token")}`
+                    }
                 }
             );
 
@@ -224,6 +234,7 @@ function Todolist() {
 
 
         try {
+            const token=localStorage.getItem("token");
 
             const response = await fetch(
                 "http://localhost:5000/tasks/reorder",
@@ -231,12 +242,11 @@ function Todolist() {
                     method: "PUT",
 
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        Authorization:`Bearer ${token}`,
                     },
-
                     body: JSON.stringify({
-                        userId: loggedInUser.id,
-                        tasks: updatedTasks
+                      tasks: updatedTasks
                     })
                 }
             );
