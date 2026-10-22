@@ -154,12 +154,30 @@ const Dashboard = () => {
         <div 
           className="dashboard-date" 
           onClick={() => setShowCalendar(!showCalendar)}
-          style={{ cursor: "pointer", position: "relative", zIndex: 50 }}
+          style={{ cursor: "pointer",
+             position: "relative",
+            zIndex: 50,
+            border:"1px solid #e2e8f0",
+            padding:"8px 16px",
+           borderRadius:"10px",
+           background:"#ffffff" }}
         >
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" ,fontSize:"12px",color:"#64748b"}}>
             <Calendar size={14} /> Today
           </span>
-          <strong>
+          
+          <strong style={{
+            color:"#4f46e5",
+            opacity:1,
+            textDecoration:"underline",
+            textDecorationColor:"transparent",
+            transition:"text-decoration-color 0.2s ease",
+            fontSize:"14px",
+            marginTop:"2px",
+          }}
+          onMouseEnter={(e)=>e.currentTarget.style.textDecorationColor="#4f46e5"}
+          onMouseLeave={(e)=>e.currentTarget.style.textDecorationColor="transparent"}
+          >
             {new Date().toLocaleDateString("en-IN", {
               weekday: "short", day: "2-digit", month: "short", year: "numeric",
             })}

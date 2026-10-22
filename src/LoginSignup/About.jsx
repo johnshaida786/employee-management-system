@@ -9,6 +9,9 @@ import {
   Server,
   Database,
   Layout,
+  ShieldCheck,
+  Users,
+  CheckCircle2
 } from 'lucide-react';
 
 const About = () => {
@@ -17,8 +20,8 @@ const About = () => {
       <section className="page-hero">
         <h1 className="page-hero-title">About SecureApp</h1>
         <p className="page-hero-subtitle">
-          A modern, secure web application built with React, Vite, and a
-          Node.js + MySQL backend.
+          A robust, full-stack enterprise dashboard built with React, Vite, and a 
+          Node.js + MySQL backend, featuring Advanced Role-Based Access Control (RBAC).
         </p>
       </section>
 
@@ -29,10 +32,10 @@ const About = () => {
         </h2>
         <div className="card about-card">
           <p>
-            SecureApp is a professional dashboard application designed to help
-            users manage their account, profile, and application preferences
-            in one place. It provides a clean, modern interface with secure
-            authentication and a scalable architecture.
+            SecureApp is a professional management platform designed to give users 
+            complete control over their personal profiles, security settings, and daily 
+            tasks. With a modern, responsive interface and high-performance backend, it 
+            provides a seamless experience for both standard users and system administrators.
           </p>
         </div>
       </section>
@@ -40,16 +43,34 @@ const About = () => {
       {/* Features */}
       <section className="section-block">
         <h2 className="section-title">
-          <ListChecks size={18} /> Features
+          <ListChecks size={18} /> Core Features
         </h2>
         <div className="card about-card">
           <ul className="feature-list">
-            <li>Secure login and signup with session-based authentication</li>
-            <li>Personal dashboard with account overview and quick actions</li>
-            <li>Profile management with editable information</li>
-            <li>Comprehensive settings for notifications, appearance, and privacy</li>
-            <li>Responsive design for desktop, tablet, and mobile</li>
-            <li>Clean, modern UI with Lucide icons and smooth transitions</li>
+            <li className="hover-feature">
+              <ShieldCheck size={16} className="feature-icon" /> 
+              Secure JWT Authentication & Role-Based Access (Admin vs. User)
+            </li>
+            <li className="hover-feature">
+              <Users size={16} className="feature-icon" /> 
+              Admin Control Panel with User Promotion & Status Management
+            </li>
+            <li className="hover-feature">
+              <CheckCircle2 size={16} className="feature-icon" /> 
+              Interactive To-Do List with Drag-and-Drop Reordering
+            </li>
+            <li className="hover-feature">
+              <UserCircle size={16} className="feature-icon" /> 
+              Dynamic Profile Management with Photo Upload & Completion Tracking
+            </li>
+            <li className="hover-feature">
+              <Layout size={16} className="feature-icon" /> 
+              Modern, Responsive UI with Light/Dark Mode Support
+            </li>
+            <li className="hover-feature">
+              <Database size={16} className="feature-icon" /> 
+              Real-time Dashboard Analytics & Account Statistics
+            </li>
           </ul>
         </div>
       </section>
@@ -57,32 +78,36 @@ const About = () => {
       {/* Technology */}
       <section className="section-block">
         <h2 className="section-title">
-          <Code2 size={18} /> Technology Used
+          <Code2 size={18} /> Technology Stack
         </h2>
         <div className="card-grid card-grid-3">
-          <div className="tech-card">
+          <div className="tech-card hover-card">
             <Layout size={22} />
             <h3>Frontend</h3>
             <ul>
-              <li>React</li>
-              <li>Vite</li>
-              <li>React Router</li>
-              <li>Lucide React</li>
+              <li>React & Vite</li>
+              <li>React Router DOM</li>
+              <li>Lucide Icons</li>
+              <li>Custom CSS3 Animations</li>
             </ul>
           </div>
-          <div className="tech-card">
+          <div className="tech-card hover-card">
             <Server size={22} />
             <h3>Backend</h3>
             <ul>
               <li>Node.js</li>
-              <li>Express</li>
+              <li>Express.js</li>
+              <li>JSON Web Tokens (JWT)</li>
+              <li>Multer (File Uploads)</li>
             </ul>
           </div>
-          <div className="tech-card">
+          <div className="tech-card hover-card">
             <Database size={22} />
             <h3>Database</h3>
             <ul>
               <li>MySQL</li>
+              <li>Relational Schema</li>
+              <li>bcrypt (Password Hashing)</li>
             </ul>
           </div>
         </div>
@@ -96,11 +121,11 @@ const About = () => {
         <div className="card about-card">
           <div className="info-row">
             <span className="info-row-label">Application Version</span>
-            <span className="info-row-value">1.0.0</span>
+            <span className="info-row-value">2.0.0 (RBAC Update)</span>
           </div>
           <div className="info-row">
             <span className="info-row-label">Release Status</span>
-            <span className="info-row-value">Stable</span>
+            <span className="info-row-value" style={{ color: "#059669" }}>Stable</span>
           </div>
         </div>
       </section>
@@ -112,8 +137,8 @@ const About = () => {
         </h2>
         <div className="card about-card">
           <div className="info-row">
-            <span className="info-row-label">Developer</span>
-            <span className="info-row-value">Shaik.John Shaida</span>
+            <span className="info-row-label">Lead Developer</span>
+            <span className="info-row-value">Shaik. John Shaida</span>
           </div>
           <div className="info-row">
             <span className="info-row-label">Contact</span>
