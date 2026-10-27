@@ -5324,14 +5324,14 @@ html[data-theme="dark"] select {
 }
 
 .btn-save {
-    background: #4f46e5;
+    background:#e54646;
     color: #ffffff;
-    border: 1px solid #4f46e5;
+    border: 1px solid #e54646;
 }
 
 .btn-save:hover {
-    background: #4338ca;
-    border-color: #4338ca;
+    background: #46e561;
+    border-color: #46e561;
     transform: translateY(-1px);
 }
 

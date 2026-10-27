@@ -153,7 +153,7 @@ const Profile = () => {
         setLoadingAccounts(false);
         return;
       }
-
+  
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -284,38 +284,37 @@ const Profile = () => {
     }
   };
 
-  // ---------------- Bulk submit ----------------
+  // ---------------- Bulk submit (UPDATED: ONE REQUEST) ----------------
   const handleBulkSubmit = async () => {
     if (selectedAccounts.length === 0 || !statusFilter) return;
-
-    const targets = accounts.filter((account) => selectedAccounts.includes(account.id));
-    if (targets.length === 0) return;
 
     setSubmittingBulk(true);
 
     try {
       const token = localStorage.getItem("token");
-      const results = await Promise.all(
-        targets.map(async (account) => {
-          const response = await fetch(`${API_URL}/admin/updateStatus`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ accountId: account.id, status: statusFilter }),
-          });
+      
+      // Send ONE single request with the array of selected IDs
+      const response = await fetch(`${API_URL}/admin/updateStatus`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          accountIds: selectedAccounts, // Pass the array [1, 4, 5, 6]
+          status: statusFilter 
+        }),
+      });
 
-          if (!response.ok) throw new Error(`Failed to update account ${account.id}.`);
-          return { id: account.id, newStatus: statusFilter };
-        })
-      );
+      if (!response.ok) throw new Error("Failed to update accounts.");
 
+      // Update all selected accounts in the local state
       setAccounts((previous) =>
-        previous.map((account) => {
-          const updated = results.find((result) => result.id === account.id);
-          return updated ? { ...account, status: updated.newStatus } : account;
-        })
+        previous.map((account) =>
+          selectedAccounts.includes(account.id)
+            ? { ...account, status: statusFilter }
+            : account
+        )
       );
 
       setSelectedAccounts([]);
@@ -343,6 +342,7 @@ const Profile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        // Individual updates still send a single ID
         body: JSON.stringify({ accountId: account.id, status: newStatus }),
       });
 
