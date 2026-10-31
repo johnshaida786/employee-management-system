@@ -99,7 +99,7 @@ const Singnup = () => {
         if (!validateForm()) return;
 
         try {
-            const response = await fetch("http://localhost:5000/signup", {
+            const response = await fetch("https://backend-beta-tan-14.vercel.app/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)

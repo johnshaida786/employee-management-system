@@ -44,7 +44,7 @@ function Todolist() {
         const token=localStorage.getItem("token");
 
         fetch(
-            `http://localhost:5000/tasks`,
+            `https://backend-beta-tan-14.vercel.app/tasks`,
             {
                 headers:{
                     Authorization:`Bearer ${token}`,
@@ -117,7 +117,7 @@ function Todolist() {
         try {
 
             const response = await fetch(
-                "http://localhost:5000/tasks",
+                "https://backend-beta-tan-14.vercel.app/tasks",
                 {
                     method: "POST",
 
@@ -179,7 +179,7 @@ function Todolist() {
         try {
 
             const response = await fetch(
-                `http://localhost:5000/tasks/${taskId}`,
+                `https://backend-beta-tan-14.vercel.app/tasks/${taskId}`,
                 {
                     method: "DELETE",
                     headers:{
@@ -237,7 +237,7 @@ function Todolist() {
             const token=localStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:5000/tasks/reorder",
+                "https://backend-beta-tan-14.vercel.app/tasks/reorder",
                 {
                     method: "PUT",
 

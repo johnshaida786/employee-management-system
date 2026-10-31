@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar } from "lucide-react";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://backend-beta-tan-14.vercel.app";
 
 // Helper to check if a value exists and isn't empty
 const hasValue = (v) =>

@@ -4,7 +4,7 @@ import { User, Pencil, Eye, Shield, ShieldOff } from "lucide-react";
 import Pagination from "./Pagination";
 import "../Profile.css";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://backend-beta-tan-14.vercel.app";
 const PAGE_SIZE = 4;
 
 const getPhotoUrl = (photo) => {

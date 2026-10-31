@@ -58,7 +58,7 @@ const ViewProfile = () => {
                 const token=localStorage.getItem("token");
 
                 const response = await fetch(
-                    "http://localhost:5000/profile/getProfile",
+                    "https://backend-beta-tan-14.vercel.app/profile/getProfile",
                     {
                         method: "POST",
                         headers: {
@@ -93,7 +93,7 @@ const ViewProfile = () => {
                 const photoURL = rawPhoto
                     ? rawPhoto.startsWith("http")
                         ? rawPhoto
-                        : `http://localhost:5000/${rawPhoto.replace(/^\/+/, "")}`
+                        : `https://backend-beta-tan-14.vercel.app/${rawPhoto.replace(/^\/+/, "")}`
                     : "";
 
                 if (!cancelled) {
